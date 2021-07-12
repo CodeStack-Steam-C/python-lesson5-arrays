@@ -1,6 +1,6 @@
-controller.A.onEvent(ControllerButtonEvent.Pressed, function on_a_pressed() {
-    
-    dart = sprites.createProjectileFromSprite(img`
+def on_a_pressed():
+    global dart
+    dart = sprites.create_projectile_from_sprite(img("""
             . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . . 
@@ -17,39 +17,40 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function on_a_pressed() {
                     . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . .
-        `, spacePlane, 200, 0)
-})
-sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
-    
-    if (newWords.length > 0) {
-        // tell me how many items are in array
-        spacePlane.say(newWords.pop())
-    } else {
-        // returns and removes last item
-        newWords = word.split(" ")
-        // refill the array when it is empty
+        """),
+        spacePlane,
+        200,
+        0)
+controller.A.on_event(ControllerButtonEvent.PRESSED, on_a_pressed)
+
+def on_on_overlap(sprite, otherSprite):
+    global newWords
+    if len(newWords) > 0: #tell me how many items are in array
+        spacePlane.say(newWords.pop()) #returns and removes last item
+    else:
+        newWords = word.split(" ") #refill the array when it is empty
         newWords.reverse()
-    }
-    
     otherSprite.destroy()
     sprite.destroy(effects.fire, 100)
-    info.changeScoreBy(1)
+    info.change_score_by(1)
     pause(1000)
     spacePlane.say("")
-})
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function on_on_overlap2(sprite: Sprite, otherSprite: Sprite) {
+sprites.on_overlap(SpriteKind.projectile, SpriteKind.enemy, on_on_overlap)
+
+def on_on_overlap2(sprite, otherSprite):
     otherSprite.destroy()
-    info.changeLifeBy(-1)
-})
-let bogey = null
-let dart = null
-let position = 0
-let word = "YOU CAN'T STOP ME!"
-word = word.toLowerCase()
-let newWords = word.split(" ")
-newWords.reverse()
-// reverses the array
-let spacePlane = sprites.create(img`
+    info.change_life_by(-1)
+sprites.on_overlap(SpriteKind.player, SpriteKind.enemy, on_on_overlap2)
+
+bogey = None
+dart = None
+
+position = 0
+word = "YOU CAN'T STOP ME!"
+word = word.to_lower_case()
+newWords = word.split(" ")
+newWords.reverse() #reverses the array
+spacePlane = sprites.create(img("""
         ................................
             ................................
             ................................
@@ -82,13 +83,15 @@ let spacePlane = sprites.create(img`
             ................................
             ................................
             ................................
-    `, SpriteKind.Player)
-spacePlane.setFlag(SpriteFlag.StayInScreen, true)
-info.setLife(3)
-controller.moveSprite(spacePlane, 200, 200)
-game.onUpdateInterval(500, function on_update_interval() {
-    
-    bogey = sprites.create(img`
+    """),
+    SpriteKind.player)
+spacePlane.set_flag(SpriteFlag.STAY_IN_SCREEN, True)
+info.set_life(3)
+controller.move_sprite(spacePlane, 200, 200)
+
+def on_update_interval():
+    global bogey
+    bogey = sprites.create(img("""
             . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . . 
@@ -105,7 +108,8 @@ game.onUpdateInterval(500, function on_update_interval() {
                     . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . . 
                     . . . . . . . . . . . . . . . .
-        `, SpriteKind.Enemy)
-    bogey.setVelocity(-100, 0)
-    bogey.setPosition(180, randint(0, 120))
-})
+        """),
+        SpriteKind.enemy)
+    bogey.set_velocity(-100, 0)
+    bogey.set_position(180, randint(0, 120))
+game.on_update_interval(500, on_update_interval)
